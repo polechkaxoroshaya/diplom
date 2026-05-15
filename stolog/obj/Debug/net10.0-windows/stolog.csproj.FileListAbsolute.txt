@@ -1,0 +1,7 @@
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.csproj.AssemblyReference.cache
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\EVS.RegistrationForm.resources
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.csproj.GenerateResource.cache
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.GeneratedMSBuildEditorConfig.editorconfig
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.AssemblyInfoInputs.cache
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.AssemblyInfo.cs
+D:\St\EVSS\stolog\obj\Debug\net10.0-windows\stolog.csproj.CoreCompileInputs.cache

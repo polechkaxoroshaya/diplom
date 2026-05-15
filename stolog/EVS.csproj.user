@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="AddCompanyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AddDriverForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AddTruckForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ClientMainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="DriverMainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="EditCompanyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ManagerMainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MyCompaniesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="RegisterClientForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="RegisterEmployeeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="RegistrationChoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
