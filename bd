@@ -1,0 +1,946 @@
+CREATE DATABASE www2
+
+-- Схемы
+CREATE SCHEMA IF NOT EXISTS mashini;
+CREATE SCHEMA IF NOT EXISTS sortydnikis;
+CREATE SCHEMA IF NOT EXISTS prog;
+CREATE SCHEMA IF NOT EXISTS security;
+CREATE SCHEMA IF NOT EXISTS zakazzs;
+
+-- Таблица statysimashin
+CREATE TABLE mashini.statysimashin (
+    id_statysa_mashini SERIAL PRIMARY KEY,
+    nazvanie_statysa VARCHAR(100) NOT NULL
+);
+
+-- Таблица obemikyzova
+CREATE TABLE mashini.obemikyzova (
+    id_obema SERIAL PRIMARY KEY,
+    obem_v_paletax INTEGER NOT NULL,
+    obem_ot INTEGER NOT NULL,
+    obem_do INTEGER NOT NULL
+);
+
+-- Таблица gryzopodemnostimashin
+CREATE TABLE mashini.gryzopodemnostimashin (
+    id_gryz SERIAL PRIMARY KEY,
+    tip VARCHAR(100) NOT NULL,
+    gryz_ot INTEGER NOT NULL,
+    gryz_do INTEGER NOT NULL
+);
+
+-- Таблица regioninomerovmashin
+CREATE TABLE mashini.regioninomerovmashin (
+    id_regiona SERIAL PRIMARY KEY,
+    region_gorod VARCHAR(255) NOT NULL,
+    region_chifra INTEGER NOT NULL
+);
+
+-- Таблица nomeramashin
+CREATE TABLE mashini.nomeramashin (
+    id_nomera SERIAL PRIMARY KEY,
+    region BIGINT NOT NULL,
+    nomer_mashini TEXT NOT NULL
+);
+
+ALTER TABLE mashini.nomeramashin
+ADD CONSTRAINT fk_nomeramashin_regioninomerovmashin
+FOREIGN KEY (region) REFERENCES mashini.regioninomerovmashin (id_regiona);
+
+-- Таблица dolznosti
+CREATE TABLE sortydnikis.dolznosti (
+    id_dolznosti SERIAL PRIMARY KEY,
+    nazvanie_dolznosti VARCHAR(100) NOT NULL
+);
+
+-- Таблица sotrydniki
+CREATE TABLE sortydnikis.sotrydniki (
+    id_sotrydnika SERIAL PRIMARY KEY,
+    s_imya VARCHAR(100) NOT NULL,
+    s_familiya VARCHAR(100) NOT NULL,
+    s_otchestvo VARCHAR(100),
+    s_nomer_telephona VARCHAR(20) NOT NULL,
+    dolzhnost INTEGER NOT NULL,
+    s_data_rozdeniya DATE NOT NULL,
+    data_priema DATE NOT NULL
+);
+
+-- Таблица voditeli
+CREATE TABLE sortydnikis.voditeli (
+    id_voditelya SERIAL PRIMARY KEY,
+    id_sotrydnika INTEGER NOT NULL,
+    passport_data VARCHAR(100) NOT NULL,
+    driver_license_number VARCHAR(50) NOT NULL
+);
+
+ALTER TABLE sortydnikis.voditeli
+ADD CONSTRAINT fk_voditeli_sotrydniki
+FOREIGN KEY (id_sotrydnika) REFERENCES sortydnikis.sotrydniki(id_sotrydnika);
+
+-- Таблица users
+CREATE TABLE security.users (
+    id_user SERIAL PRIMARY KEY,
+    login VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(64) NOT NULL,
+    password_salt VARCHAR(32) NOT NULL,
+    id_sotrydnika BIGINT NOT NULL
+);
+
+ALTER TABLE security.users
+ADD CONSTRAINT fk_users_sotrydniki
+FOREIGN KEY (id_sotrydnika) REFERENCES sortydnikis.sotrydniki(id_sotrydnika);
+
+-- Таблица polzovateli
+CREATE TABLE prog.polzovateli (
+    id_polzovatelya SERIAL PRIMARY KEY,
+    p_name VARCHAR(100) NOT NULL,
+    p_familyia VARCHAR(100) NOT NULL,
+    p_otchestvo VARCHAR(100),
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100)
+);
+
+-- Таблица users_polz
+CREATE TABLE prog.users_polz (
+    id_user_p SERIAL PRIMARY KEY,
+    login_p VARCHAR(50) NOT NULL,
+    password_hash_user VARCHAR(64) NOT NULL,
+    password_salt_user VARCHAR(32) NOT NULL,
+    id_polzovatelya INTEGER NOT NULL
+);
+
+ALTER TABLE prog.users_polz
+ADD CONSTRAINT fk_userspolz_polzovateli
+FOREIGN KEY (id_user_p) REFERENCES prog.polzovateli(id_polzovatelya);
+
+
+-- Таблица zayavki_status
+CREATE TABLE zakazzs.zayavki_status (
+    id_status SERIAL PRIMARY KEY,
+    status_name VARCHAR(50) NOT NULL,
+    status_order INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    color_code VARCHAR(7) DEFAULT '#000000'
+);
+
+-- Таблица companies
+CREATE TABLE prog.companies (
+    id_company SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    inn VARCHAR(12),
+    kpp VARCHAR(9),
+    ogrn VARCHAR(13),
+    legal_address VARCHAR(500),
+    actual_address VARCHAR(500),
+    phone VARCHAR(50),
+    email VARCHAR(100),
+    director_name VARCHAR(200),
+    bank_name VARCHAR(200),
+    bik VARCHAR(9),
+    correspondent_account VARCHAR(20),
+    checking_account VARCHAR(20),
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    is_active BOOLEAN
+);
+
+-- Таблица mashinki
+CREATE TABLE mashini.mashinki (
+    id_mashini SERIAL PRIMARY KEY,
+    marka VARCHAR(100) NOT NULL,
+    polnoe_nazvanie VARCHAR(100) NOT NULL,
+    nomer INTEGER NOT NULL,
+    gryzopodemnost INTEGER NOT NULL,
+    obem_kyzova INTEGER NOT NULL,
+    statys_mashini INTEGER NOT NULL
+);
+
+ALTER TABLE mashini.mashinki
+ADD CONSTRAINT fk_mashinki_nomeramashin
+FOREIGN KEY (nomer) REFERENCES mashini.nomeramashin(id_nomera);
+
+ALTER TABLE mashini.mashinki
+ADD CONSTRAINT fk_mashinki_gryzopodemnostimashin
+FOREIGN KEY (gryzopodemnost) REFERENCES mashini.gryzopodemnostimashin(id_gryz);
+
+ALTER TABLE mashini.mashinki
+ADD CONSTRAINT fk_mashinki_obemikyzova
+FOREIGN KEY (obem_kyzova) REFERENCES mashini.obemikyzova(id_obema);
+
+ALTER TABLE mashini.mashinki
+ADD CONSTRAINT fk_mashinki_statysimashin
+FOREIGN KEY (statys_mashini) REFERENCES mashini.statysimashin(id_statysa_mashini);
+
+-- Таблица user_companies
+CREATE TABLE prog.user_companies (
+    id_user_company SERIAL PRIMARY KEY,
+    id_polzovatelya INTEGER NOT NULL,
+    id_company INTEGER NOT NULL,
+    is_default BOOLEAN,
+    position_in_company VARCHAR(100),
+    created_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+ALTER TABLE prog.user_companies
+ADD CONSTRAINT fk_usercompanies_polzovateli
+FOREIGN KEY (id_polzovatelya) REFERENCES prog.polzovateli(id_polzovatelya);
+
+ALTER TABLE prog.user_companies
+ADD CONSTRAINT fk_usercompanies_companies
+FOREIGN KEY (id_company) REFERENCES prog.companies (id_company);
+
+-- Таблица zayavki
+CREATE TABLE zakazzs.zayavki (
+    id_zayavki SERIAL PRIMARY KEY,
+    data_podachi DATE DEFAULT CURRENT_DATE,
+    data_podachi_mashiny DATE,
+    vremya_dostavki TIME WITHOUT TIME ZONE,
+    adress_ot VARCHAR(500) NOT NULL,
+    adress_do VARCHAR(500) NOT NULL,
+    lontaktnoe_lico_otpravitel VARCHAR(200),
+    telefon_otpravitel VARCHAR(50),
+    naimenovanie_gruza VARCHAR(500),
+    obschiy_ves_kg NUMERIC(10, 2),
+    obschiy_obem_m3 NUMERIC(10, 2),
+    kolvo_mest VARCHAR(100),
+    dilna_m NUMERIC(8, 2),
+    shirina_m NUMERIC(8, 2),
+    vysota_m NUMERIC(8, 2),
+    list_otpravitelya BOOLEAN DEFAULT FALSE,
+    list_eksporta BOOLEAN DEFAULT FALSE,
+    stoimost_grupa_dlya_straho NUMERIC(12, 2),
+    tip_transporta VARCHAR(50),
+    zagruzka_zadnyaya BOOLEAN DEFAULT FALSE,
+    zagruzka_bokovaya BOOLEAN DEFAULT FALSE,
+    zagruzka_verhnyaya BOOLEAN DEFAULT FALSE,
+    propusk_mozhd BOOLEAN DEFAULT FALSE,
+    propusk_ttk BOOLEAN DEFAULT FALSE,
+    propusksadovoekoltso BOOLEAN DEFAULT FALSE,
+    poluchatel_organizatsiya VARCHAR(300),
+    poluchatel_adress VARCHAR(500),
+    poluchatel_kontakt VARCHAR(200),
+    poluchatel_telefon VARCHAR(50),
+    platetschik VARCHAR(300),
+    prochee TEXT,
+    id_zakazchika INTEGER NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    id_zakaza INTEGER,
+    id_company INTEGER,
+    id_status INTEGER DEFAULT 1,
+    is_archived BOOLEAN DEFAULT FALSE,
+    archived_date DATE,
+    id_voditel INTEGER,
+    id_mashina INTEGER
+);
+
+ALTER TABLE zakazzs.zayavki
+ADD CONSTRAINT fk_zayavki_companies
+FOREIGN KEY (id_company) REFERENCES prog.companies(id_company);
+
+ALTER TABLE zakazzs.zayavki
+ADD CONSTRAINT fk_zayavki_voditeli
+FOREIGN KEY (id_voditel) REFERENCES sortydnikis.voditeli(id_voditelya);
+
+ALTER TABLE zakazzs.zayavki
+ADD CONSTRAINT fk_zayavki_zayavkistatus
+FOREIGN KEY (id_status) REFERENCES zakazzs.zayavki_status(id_status);
+
+ALTER TABLE zakazzs.zayavki
+ADD CONSTRAINT fk_zayavki_polzovateli
+FOREIGN KEY (id_zakazchika) REFERENCES prog.polzovateli(id_polzovatelya);
+
+ALTER TABLE zakazzs.zayavki
+ADD CONSTRAINT fk_zayavki_mashinki
+FOREIGN KEY (id_mashina) REFERENCES mashini.mashinki(id_mashini);
+
+-- Таблица istoriya_statusov
+CREATE TABLE zakazzs.istoriya_statusov (
+    id_loga SERIAL PRIMARY KEY,
+    id_zayavki BIGINT NOT NULL,
+    stariy_status BIGINT,
+    noviy_status BIGINT NOT NULL,
+    data_izmeneniya TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    izmenil_kto VARCHAR(100),
+    kommentariy TEXT,
+    izmenil_id BIGINT,
+    izmenil_name VARCHAR(100) DEFAULT 'Система'
+);
+
+ALTER TABLE zakazzs.istoriya_statusov
+ADD CONSTRAINT fk_istoriyastatusov_zayavki
+FOREIGN KEY (id_zayavki) REFERENCES zakazzs.zayavki(id_zayavki);
+
+-- ЗАПОЛНЕНИЕ ДАННЫМИ
+-- Таблица gryzopodemnostimashin
+INSERT INTO mashini.gryzopodemnostimashin (tip, gryz_ot, gryz_do) VALUES
+('1 тонна', 0, 1000),
+('1.5 тонны', 1001, 1500),
+('2 тонны', 1501, 2000),
+('3 тонны', 2001, 3000),
+('5 тонн', 3001, 5000),
+('7 тонн', 5001, 7000),
+('10 тонн', 7001, 10000),
+('20 тонн', 10001, 20000);
+
+-- Таблица regioninomerovmashin
+INSERT INTO mashini.regioninomerovmashin (region_gorod, region_chifra) VALUES
+('Республика Адыгея', 01),
+('Республика Адыгея', 101),
+('Республика Башкортостан', 02),
+('Республика Башкортостан', 102),
+('Республика Башкортостан', 702),
+('Республика Бурятия', 03),
+('Республика Бурятия', 103),
+('Республика Алтай', 04),
+('Республика Алтай', 104),
+('Республика Дагестан', 05),
+('Республика Дагестан', 105),
+('Республика Ингушетия', 06),
+('Республика Ингушетия', 106),
+('Кабардино-Балкарская Республика', 07),
+('Кабардино-Балкарская Республика', 107),
+('Республика Калмыкия', 08),
+('Республика Калмыкия', 108),
+('Карачаево-Черкесская Республика', 09),
+('Карачаево-Черкесская Республика', 109),
+('Республика Карелия', 10),
+('Республика Карелия', 110),
+('Республика Коми (Сыктывкар)', 11),
+('Республика Коми (Сыктывкар)', 111),
+('Республика Марий Эл', 12),
+('Республика Марий Эл', 112),
+('Республика Мордовия', 13),
+('Республика Мордовия', 113),
+('Республика Саха (Якутия)', 14),
+('Республика Саха (Якутия)', 114),
+('Республика Северная Осетия — Алания', 15),
+('Республика Северная Осетия — Алания', 115),
+('Республика Татарстан', 16),
+('Республика Татарстан', 116),
+('Республика Татарстан', 716),
+('Республика Тыва', 17),
+('Республика Тыва', 117),
+('Удмуртская Республика', 18),
+('Удмуртская Республика', 118),
+('Республика Хакасия', 19),
+('Республика Хакасия', 119),
+('Чеченская Республика', 20),
+('Чеченская Республика', 95),
+('Чеченская Республика', 195),
+('Чувашская Республика (Чувашия)', 21),
+('Чувашская Республика (Чувашия)', 121),
+('Алтайский край', 22),
+('Алтайский край', 122),
+('Краснодарский край', 23),
+('Краснодарский край', 93),
+('Краснодарский край', 123),
+('Краснодарский край', 193),
+('Красноярский край', 24),
+('Красноярский край', 84),
+('Красноярский край', 88),
+('Красноярский край', 124),
+('Приморский край', 25),
+('Приморский край', 125),
+('Приморский край', 725),
+('Ставропольский край', 26),
+('Ставропольский край', 126),
+('Хабаровский край', 27),
+('Приморский край', 127),
+('Амурская область', 28),
+('Амурская область', 128),
+('Архангельская область', 29),
+('Архангельская область', 129),
+('Астраханская область', 30),
+('Астраханская область', 130),
+('Белгородская область', 31),
+('Белгородская область', 131),
+('Брянская область', 32),
+('Брянская область', 132),
+('Владимирская область', 33),
+('Владимирская область', 133),
+('Волгоградская область', 34),
+('Волгоградская область', 134),
+('Вологодская область', 35),
+('Вологодская область', 135),
+('Воронежская область', 36),
+('Воронежская область', 136),
+('Ивановская область', 37),
+('Ивановская область', 137),
+('Иркутская область', 38),
+('Иркутская область', 138),
+('Калининградская область', 39),
+('Калининградская область', 91),
+('Калининградская область', 139),
+('Калужская область', 40),
+('Калужская область', 140),
+('Камчатский край', 41),
+('Камчатский край', 141),
+('Кемеровская область (Кузбасс)', 42),
+('Кемеровская область (Кузбасс)', 142),
+('Кировская область', 43),
+('Кировская область', 143),
+('Костромская область', 44),
+('Костромская область', 144),
+('Курганская область', 45),
+('Курганская область', 145),
+('Курская область', 46),
+('Курская область', 146),
+('Ленинградская область', 47),
+('Ленинградская область', 147),
+('Липецкая область', 48),
+('Липецкая область', 148),
+('Магаданская область', 49),
+('Магаданская область', 149),
+('Московская область', 50),
+('Московская область', 90),
+('Московская область', 150),
+('Московская область', 190),
+('Московская область', 250),
+('Московская область', 550),
+('Московская область', 750),
+('Московская область', 790),
+('Мурманская область', 51),
+('Мурманская область', 151),
+('Нижегородская область', 52),
+('Нижегородская область', 152),
+('Нижегородская область', 252),
+('Новгородская область', 53),
+('Новгородская область', 153),
+('Новосибирская область', 54),
+('Новосибирская область', 154),
+('Новосибирская область', 754),
+('Омская область', 55),
+('Омская область', 155),
+('Оренбургская область', 56),
+('Оренбургская область', 156),
+('Орловская область', 57),
+('Орловская область', 157),
+('Пензенская область', 58),
+('Пензенская область', 158),
+('Пермский край', 59),
+('Пермский край', 159),
+('Псковская область', 60),
+('Ростовская область', 61),
+('Ростовская область', 161),
+('Ростовская область', 761),
+('Рязанская область', 62),
+('Рязанская область', 162),
+('Самарская область', 63),
+('Самарская область', 163),
+('Самарская область', 763),
+('Саратовская область', 64),
+('Саратовская область', 164),
+('Сахалинская область', 65),
+('Сахалинская область', 165),
+('Свердловская область (Екатеринбург)', 66),
+('Свердловская область (Екатеринбург)', 96),
+('Свердловская область (Екатеринбург)', 166),
+('Свердловская область (Екатеринбург)', 196),
+('Смоленская область', 67),
+('Смоленская область', 167),
+('Тамбовская область', 68),
+('Тамбовская область', 168),
+('Тверская область', 69),
+('Тверская область', 169),
+('Томская область', 70),
+('Томская область', 170),
+('Тульская область', 71),
+('Тульская область', 171),
+('Тюменская область', 72),
+('Тюменская область', 172),
+('Ульяновская область', 73),
+('Ульяновская область', 173),
+('Челябинская область', 74),
+('Челябинская область', 174),
+('Челябинская область', 774),
+('Забайкальский край', 75),
+('Забайкальский край', 80),
+('Забайкальский край', 180),
+('Ярославская область', 76),
+('Ярославская область', 176),
+('Москва', 77),
+('Москва', 97),
+('Москва', 99),
+('Москва', 177),
+('Москва', 197),
+('Москва', 199),
+('Москва', 277),
+('Москва', 299),
+('Москва', 777),
+('Москва', 797),
+('Москва', 799),
+('Москва', 977),
+('Санкт-Петербург', 78),
+('Санкт-Петербург', 98),
+('Санкт-Петербург', 178),
+('Санкт-Петербург', 198),
+('Еврейская автономная область', 79),
+('Еврейская автономная область', 179),
+('Донецкая Народная Республика (ДНР)', 80),
+('Донецкая Народная Республика (ДНР)', 180),
+('Луганская Народная Республика (ЛНР)', 81),
+('Луганская Народная Республика (ЛНР)', 181),
+('Республика Крым', 82),
+('Республика Крым', 182),
+('Ненецкий автономный округ', 83),
+('Ненецкий автономный округ', 183),
+('Херсонская область', 84),
+('Херсонская область', 184),
+('Запорожская область', 85),
+('Запорожская область', 185),
+('Ханты-Мансийский автономный округ (Югра)', 86),
+('Ханты-Мансийский автономный округ (Югра)', 186),
+('Чукотский автономный округ', 87),
+('Чукотский автономный округ', 187),
+('Ямало-Ненецкий автономный округ', 89),
+('Ямало-Ненецкий автономный округ', 189),
+('Севастополь', 92),
+('Севастополь', 192),
+('Зарубежные территории, обслуживаемые МВД РФ, Байконур', 94),
+('Зарубежные территории, обслуживаемые МВД РФ, Байконур', 194),
+('Алтайский край', 222),
+('Санкт-Петербург', 278),
+('Астраханская область', 330),
+('Владимирская область', 333),
+('Костромская область', 444),
+('Москва', 497),
+('Республика Татарстан', 616),
+('Псковская область', 660),
+('Ростовская область', 661),
+('Самарская область', 663),
+('Саратовская область', 664),
+('Сахалинская область', 665),
+('Смоленская область', 667),
+('Тамбовская область', 668),
+('Тверская область', 669),
+('Санкт-Петербург', 878),
+('Чеченская Республика', 995),
+('Москва', 999);
+
+-- Таблица obemikyzova
+INSERT INTO mashini.obemikyzova (obem_v_paletax, obem_ot, obem_do) VALUES
+(6,0,12),
+(8,13,18),
+(15,19,36),
+(18,37,42),
+(33,43,92);
+
+-- Таблица statysimashin
+INSERT INTO mashini.statysimashin (nazvanie_statysa) VALUES
+('Аренда'),
+('Машина компании');
+
+-- Таблица dolznosti
+INSERT INTO sortydnikis.dolznosti (nazvanie_dolznosti) VALUES
+('Генеральный директор'),
+('Заместитель генерального директора'),
+('Специалист по техническому обслуживанию'),
+('Водитель'),
+('Начальник отдела логистики'),
+('Логист'),
+('Главный бухгалтер'),
+('Бухгалтер'),
+('Менеджер по работе с клиентами'),
+('Оператор поддержки'),
+('Системный администратор'),
+('Начальник склада'),
+('Грузчик'),
+('Стажер водитель');
+
+-- Таблица sotrydniki
+INSERT INTO sortydnikis.sotrydniki (s_imya, s_familiya, s_otchestvo, s_nomer_telephona, dolzhnost, s_data_rozdeniya, data_priema) VALUES
+('Алексей', 'Мурзин', 'Викторович', '+79160123777', 1, '1982-04-05', '2016-11-10'),
+('Татьяна', 'Мурзина', 'Игоревна', '+79168901234', 2, '1993-08-17', '2016-11-11'),
+('Иван', 'Иванов', 'Иванович', '+79161234567', 3, '1985-03-15', '2020-01-10'),
+('Елена', 'Кузнецова', 'Владимировна', '+79164567890', 9, '1995-05-19', '2022-02-01'),
+('Дмитрий', 'Смирнов', 'Павлович', '+79165678901', 4, '1988-09-30', '2020-11-17'),
+('Ольга', 'Васильева', 'Андреевна', '+79166789012', 7, '1992-12-11', '2021-07-09'),
+('Николай', 'Михайлов', 'Николаевич', '+79167890123', 10, '1980-04-25', '2023-06-14'),
+('Алексей', 'Сидоров', 'Алексеевич', '+79163456789', 4, '1982-11-02', '2019-08-25'),
+('Сергей', 'Фёдоров', 'Сергеевич', '+79169012345', 4, '1986-01-28', '2024-12-03'),
+('Анна', 'Морозова', 'Денисовна', '+79160123456', 8, '1991-06-05', '2023-01-15'),
+('Мария', 'Петрова', 'Сергеевна', '+79162345678', 9, '1990-07-22', '2021-03-12');
+
+-- Таблица zayavki_status
+INSERT INTO zakazzs.zayavki_status (status_name, status_order, color_code) VALUES
+('На рассмотрении', 1, '#FFA500'),  -- Оранжевый
+('Принята', 2, '#0000FF'),          -- Синий
+('Подтверждена', 3, '#00FF00'),     -- Зеленый
+('В работе', 4, '#800080'),         -- Фиолетовый
+('Выполнена', 5, '#008000'),        -- Темно-зеленый
+('Отменена', 6, '#FF0000'),         -- Красный
+('Архив', 7, '#808080');            -- Серый
+
+-- НЕПРИКОЛЬНЫЕ ТАБЛИЦЫ
+-- Таблица voditeli
+INSERT INTO sortydnikis. voditeli (id_sotrydnika, passport_data, driver_license_number) VALUES
+(27, '4432 232323', '12345678'),
+(30, '3321 765432', '87564567'),
+(31, '1234 123456', '99805432');
+
+-- Таблица mashinki
+INSERT INTO mashini.mashinki (marka, polnoe_nazvanie, nomer, gryzopodemnost, obem_kyzova, statys_mashini) VALUES
+('Марка Газель', 'Газель', 21, 13, 8, 3),
+('Марка Газель', 'Газель', 22, 14, 7, 3);
+
+-- Таблица nomeramashin
+INSERT INTO mashini.nomeramashin (region, nomer_mashini) VALUES
+(410, 'А123БВ'),
+(413, 'В456ЕЕ'),
+(410, 'К789СМ'),
+(413, 'Х987ОН'),
+(410, 'М159РУ'),
+(410, 'О753ТА'),
+(413, 'Р246ВК'),
+(411, 'Н951ЕХ'),
+(412, 'А357ОА'),
+(412, 'У864РМ');
+
+-- ТРИГГЕРНЫЕ ФУНКЦИИ
+CREATE OR REPLACE FUNCTION zakazzs.log_status_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Получаем имя пользователя из current_user или из контекста
+    INSERT INTO zakazzs.istoriya_statusov (
+        id_zayavki,
+        stariy_status,
+        noviy_status,
+        data_izmeneniya,
+        izmenil_kto,
+        kommentariy
+    ) VALUES (
+        NEW.id_zayavki,
+        OLD.id_status,
+        NEW.id_status,
+        NOW(),
+        COALESCE(current_setting('app.current_user_name', true), 'Система'),
+        'Изменение статуса'
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zakazzs.fn_update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.data_izmeneniya_zapisi = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zakazzs.fn_log_status_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Записываем создание новой заявки
+    INSERT INTO zakazzs.istoriya_statusov (
+        id_zayavki,
+        stariy_status,
+        noviy_status,
+        data_izmeneniya,
+        izmenil_kto,
+        kommentariy
+    ) VALUES (
+        NEW.id_zayavki,
+        NULL,
+        NEW.id_status,
+        CURRENT_TIMESTAMP,
+        current_user,
+        'Создана новая заявка'
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zakazzs.fn_log_status_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Проверяем, изменился ли статус
+    IF OLD.id_status IS DISTINCT FROM NEW.id_status THEN
+        -- Записываем изменение в историю
+        INSERT INTO zakazzs.istoriya_statusov (
+            id_zayavki,
+            stariy_status,
+            noviy_status,
+            data_izmeneniya,
+            izmenil_kto,
+            izmenil_id,
+            izmenil_name,
+            kommentariy
+        ) VALUES (
+            NEW.id_zayavki,
+            OLD.id_status,
+            NEW.id_status,
+            CURRENT_TIMESTAMP,
+            current_user,
+            (SELECT id_sotrydnika FROM sortydnikis.sotrydniki WHERE s_nomer_telephona = current_user LIMIT 1),
+            (SELECT s_familiya || ' ' || s_imya FROM sortydnikis.sotrydniki WHERE s_nomer_telephona = current_user LIMIT 1),
+            CASE 
+                WHEN NEW.id_status = 5 THEN 'Заявка выполнена и отправлена в архив'
+                WHEN NEW.id_status = 6 THEN 'Заявка отменена'
+                WHEN NEW.id_status = 1 AND OLD.id_status IS NULL THEN 'Создана новая заявка'
+                ELSE 'Изменение статуса'
+            END
+        );
+        
+        -- Если новая заявка выполнена - автоматически архивируем
+        IF NEW.id_status = 5 THEN
+            NEW.is_archived := TRUE;
+            NEW.archived_date := CURRENT_DATE;
+        END IF;
+        
+        -- Если заявка отменена - тоже в архив
+        IF NEW.id_status = 6 THEN
+            NEW.is_archived := TRUE;
+            NEW.archived_date := CURRENT_DATE;
+        END IF;
+        
+        -- Если статус меняется с архива на активный
+        IF OLD.id_status IN (5,6,7) AND NEW.id_status NOT IN (5,6,7) THEN
+            NEW.is_archived := FALSE;
+            NEW.archived_date := NULL;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zakazzs.fn_auto_archive()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- При выполнении заявки (статус 5) - архивируем
+    IF NEW.id_status = 5 AND OLD.id_status != 5 THEN
+        NEW.is_archived := TRUE;
+        NEW.archived_date := CURRENT_DATE;
+    END IF;
+    
+    -- При отмене (статус 6) - архивируем
+    IF NEW.id_status = 6 AND OLD.id_status != 6 THEN
+        NEW.is_archived := TRUE;
+        NEW.archived_date := CURRENT_DATE;
+    END IF;
+    
+    -- Если возвращаем из архива в работу
+    IF OLD.id_status IN (5,6,7) AND NEW.id_status NOT IN (5,6,7) THEN
+        NEW.is_archived := FALSE;
+        NEW.archived_date := NULL;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zakazzs.fn_archive_completed_requests()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.id_status = 5 AND OLD.id_status != 5 THEN
+        NEW.is_archived = TRUE;
+        NEW.archived_date = CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ПРОЦЕДУРЫ
+CREATE OR REPLACE PROCEDURE zakazzs.sp_change_zayavka_status(
+    p_id_zayavki INTEGER,
+    p_new_status_id INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_current_status INTEGER;
+    v_old_status_name TEXT;
+    v_new_status_name TEXT;
+BEGIN
+    -- Получаем текущий статус
+    SELECT id_status INTO v_current_status
+    FROM zakazzs.zayavki
+    WHERE id_zayavki = p_id_zayavki;
+    
+    IF v_current_status IS NULL THEN
+        RAISE EXCEPTION 'Заявка с ID % не найдена', p_id_zayavki;
+    END IF;
+    
+    -- Получаем названия статусов
+    SELECT status_name INTO v_old_status_name FROM zakazzs.zayavki_status WHERE id_status = v_current_status;
+    SELECT status_name INTO v_new_status_name FROM zakazzs.zayavki_status WHERE id_status = p_new_status_id;
+    
+    -- Обновляем статус (триггер сам запишет историю)
+    UPDATE zakazzs.zayavki 
+    SET id_status = p_new_status_id
+    WHERE id_zayavki = p_id_zayavki;
+    
+    -- Выводим информацию
+    RAISE NOTICE 'Статус заявки % изменен с "%" на "%"', 
+        p_id_zayavki, v_old_status_name, v_new_status_name;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE zakazzs.sp_change_zayavka_status (
+    p_id_zayavki INTEGER,
+    p_new_status_id INTEGER,
+    p_user_id INTEGER DEFAULT NULL
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_current_status INTEGER;
+    v_old_status_name TEXT;
+    v_new_status_name TEXT;
+    v_user_name TEXT;
+BEGIN
+    -- Получаем текущий статус
+    SELECT id_status INTO v_current_status
+    FROM zakazzs.zayavki
+    WHERE id_zayavki = p_id_zayavki;
+    
+    IF v_current_status IS NULL THEN
+        RAISE EXCEPTION 'Заявка с ID % не найдена', p_id_zayavki;
+    END IF;
+    
+    -- Получаем имена статусов
+    SELECT status_name INTO v_old_status_name FROM zakazzs.zayavki_status WHERE id_status = v_current_status;
+    SELECT status_name INTO v_new_status_name FROM zakazzs.zayavki_status WHERE id_status = p_new_status_id;
+    
+    -- Получаем имя пользователя, если передан ID
+    IF p_user_id IS NOT NULL THEN
+        SELECT s_familiya || ' ' || s_imya INTO v_user_name
+        FROM sortydnikis.sotrydniki
+        WHERE id_sotrydnika = p_user_id;
+    ELSE
+        v_user_name := current_user;
+    END IF;
+    
+    -- Обновляем статус
+    UPDATE zakazzs.zayavki 
+    SET id_status = p_new_status_id
+    WHERE id_zayavki = p_id_zayavki;
+    
+    -- Выводим информацию
+    RAISE NOTICE 'Статус заявки % изменен с "%" на "%" пользователем %', 
+        p_id_zayavki, v_old_status_name, v_new_status_name, COALESCE(v_user_name, current_user);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE zakazzs.sp_naznachit_ispolnitelya(
+    p_id_zakaza INTEGER,
+    p_id_voditelya INTEGER,
+    p_id_mashini INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_status_id BIGINT;
+    v_voditel_fio TEXT;
+    v_mashina_name TEXT;
+    v_status_name TEXT := 'В работе';
+BEGIN
+    SELECT id_statusa_zakaza INTO v_status_id
+    FROM zakazzs.statuszakaza
+    WHERE status_zakaza = v_status_name;
+    UPDATE zakazzs.zakaz
+    SET 
+        voditel = p_id_voditelya,
+        mashina = p_id_mashini,
+        status_zakaza = v_status_id
+    WHERE id_zakaza = p_id_zakaza;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Заказ с ID % не найден!', p_id_zakaza;
+    END IF;
+    SELECT CONCAT(s.s_familiya, ' ', s.s_imya) INTO v_voditel_fio
+    FROM sortydnikis.voditeli v
+    JOIN sortydnikis.sotrydniki s ON v.id_sotrydnika = s.id_sotrydnika
+    WHERE v.id_voditelya = p_id_voditelya;
+    SELECT polnoe_nazvanie INTO v_mashina_name
+    FROM mashini.mashinki
+    WHERE id_mashini = p_id_mashini;
+    RAISE NOTICE '--- Отчет о назначении ---';
+    RAISE NOTICE 'Заказ №: %', p_id_zakaza;
+    RAISE NOTICE 'Назначен водитель: %', v_voditel_fio;
+    RAISE NOTICE 'Назначена машина: %', v_mashina_name;
+    RAISE NOTICE 'Новый статус: %', v_status_name;
+    RAISE NOTICE '--------------------------';
+END;
+$$;
+
+-- ЕЩЕ ПРОЦЕДУРА
+CREATE OR REPLACE PROCEDURE zakazzs.sp_obnovit_status_zakaza(
+    p_id_zakaza INTEGER,
+    p_noviy_status_text TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_status_id BIGINT;
+BEGIN
+    SELECT id_statusa_zakaza INTO v_status_id
+    FROM zakazzs.statuszakaza
+    WHERE status_zakaza = p_noviy_status_text;
+    IF v_status_id IS NULL THEN
+        RAISE EXCEPTION 'Статус "%" не найден в справочнике!', p_noviy_status_text;
+    END IF;
+    UPDATE zakazzs.zakaz
+    SET status_zakaza = v_status_id
+    WHERE id_zakaza = p_id_zakaza;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Заказ с ID % не найден!', p_id_zakaza;
+    END IF;
+    RAISE NOTICE 'Статус заказа % успешно изменен на "%"', p_id_zakaza, p_noviy_status_text;
+END;
+$$;
+
+-- ЕЩЕ ПРОЦЕДУРА
+CREATE OR REPLACE PROCEDURE zakazzs.sp_otmenit_zakaz (
+p_id_zakaza INTEGER,
+    p_prichina TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_tekushiy_status TEXT;
+    v_zakazchik_name TEXT;
+    v_id_otmena INTEGER;
+BEGIN
+    SELECT sz.status_zakaza, zk.name_org INTO v_tekushiy_status, v_zakazchik_name
+    FROM zakazzs.zakaz z
+    JOIN zakazzs.statuszakaza sz ON z.status_zakaza = sz.id_statusa_zakaza
+    JOIN zakazzs.zakazchiki zk ON z.zakazchik = zk.id_zakazchika
+    WHERE z.id_zakaza = p_id_zakaza;
+    IF v_tekushiy_status IS NULL THEN
+        RAISE EXCEPTION 'Заказ №% не найден в базе данных!', p_id_zakaza;
+    END IF;
+    IF v_tekushiy_status = 'Завершен' THEN
+        RAISE EXCEPTION 'Ошибка: Нельзя отменить заказ №%, так как он уже завершён.', p_id_zakaza;
+    END IF;
+    SELECT id_statusa_zakaza INTO v_id_otmena
+    FROM zakazzs.statuszakaza
+    WHERE status_zakaza = 'Отменен';
+    UPDATE zakazzs.zakaz
+    SET status_zakaza = v_id_otmena
+    WHERE id_zakaza = p_id_zakaza;
+    RAISE NOTICE '=== ОТМЕНА ЗАКАЗА УСПЕШНА ===';
+    RAISE NOTICE 'Заказ №: %', p_id_zakaza;
+    RAISE NOTICE 'Организация: %', v_zakazchik_name;
+    RAISE NOTICE 'Причина отмены: %', p_prichina;
+    RAISE NOTICE 'Прежний статус: %', v_tekushiy_status;
+    RAISE NOTICE '=============================';
+END;
+$$;
+
+-- ПРЕДСТАВЛЕНИЕ
+CREATE OR REPLACE VIEW zakazzs.v_history_statusov AS
+SELECT 
+    i.id_loga AS "ID записи",
+    i.id_zayavki AS "№ заявки",
+    concat(z.adress_ot, ' - ', z.adress_do) AS "Маршрут",
+    COALESCE(s1.status_name, 'Создана'::character varying) AS "Было",
+    s2.status_name AS "Стало",
+    i.data_izmeneniya AS "Дата изменения",
+    COALESCE(i.izmenil_kto, 'Система'::character varying) AS "Кто изменил",
+    COALESCE(i.kommentariy, ''::text) AS "Комментарий"
+FROM 
+    zakazzs.istoriya_statusov i
+    JOIN zakazzs.zayavki z ON i.id_zayavki = z.id_zayavki
+    LEFT JOIN zakazzs.zayavki_status s1 ON i.stariy_status = s1.id_status
+    JOIN zakazzs.zayavki_status s2 ON i.noviy_status = s2.id_status;
