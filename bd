@@ -570,31 +570,6 @@ INSERT INTO zakazzs.zayavki_status (status_name, status_order, color_code) VALUE
 ('Отменена', 6, '#FF0000'),         -- Красный
 ('Архив', 7, '#808080');            -- Серый
 
--- НЕПРИКОЛЬНЫЕ ТАБЛИЦЫ
--- Таблица voditeli
-INSERT INTO sortydnikis. voditeli (id_sotrydnika, passport_data, driver_license_number) VALUES
-(27, '4432 232323', '12345678'),
-(30, '3321 765432', '87564567'),
-(31, '1234 123456', '99805432');
-
--- Таблица mashinki
-INSERT INTO mashini.mashinki (marka, polnoe_nazvanie, nomer, gryzopodemnost, obem_kyzova, statys_mashini) VALUES
-('Марка Газель', 'Газель', 21, 13, 8, 3),
-('Марка Газель', 'Газель', 22, 14, 7, 3);
-
--- Таблица nomeramashin
-INSERT INTO mashini.nomeramashin (region, nomer_mashini) VALUES
-(410, 'А123БВ'),
-(413, 'В456ЕЕ'),
-(410, 'К789СМ'),
-(413, 'Х987ОН'),
-(410, 'М159РУ'),
-(410, 'О753ТА'),
-(413, 'Р246ВК'),
-(411, 'Н951ЕХ'),
-(412, 'А357ОА'),
-(412, 'У864РМ');
-
 -- ТРИГГЕРНЫЕ ФУНКЦИИ
 CREATE OR REPLACE FUNCTION zakazzs.log_status_change()
 RETURNS TRIGGER AS $$
