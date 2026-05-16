@@ -15,13 +15,16 @@ namespace EVS
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public void ExportOrderToPDF(long requestId, string from, string to, string cargoName,
+        public void ExportOrderToPDF(
+            long requestId, string from, string to, string cargoName,
             string driverName, string truckInfo, string companyName, DateTime deliveryDate,
             string wishes, string receiverOrg, string receiverAddress, string receiverContact,
             string contactPerson, string contactPhone, string weight, string volume,
-            string places, string transportType, string payer,
+            string transportType, string payer,
             bool rearLoading, bool sideLoading, bool topLoading,
-            bool mozhd, bool ttk, bool sadovoe)
+            bool mozhd, bool ttk, bool sadovoe,
+            string dimensions, bool isRigidPackaging, decimal insuranceCost)  // новые
+
         {
             try
             {
@@ -89,7 +92,6 @@ namespace EVS
                         AddInfoRow(senderTable, "Адрес отправления:", from, normalFont, normalFont);
                         AddInfoRow(senderTable, "Контактное лицо:", contactPerson, normalFont, normalFont);
                         AddInfoRow(senderTable, "Телефон:", contactPhone, normalFont, normalFont);
-                        AddInfoRow(senderTable, "Склад/Терминал:", from, normalFont, normalFont);
 
                         doc.Add(senderTable);
                         doc.Add(new Paragraph(" "));
@@ -133,14 +135,18 @@ namespace EVS
 
                         // Создаем фразу с переносом строки
                         Phrase sizePhrase = new Phrase();
-                        sizePhrase.Add(new Chunk("Размеры груза (м):\n", normalFont));  // \n - перенос строки
-                        sizePhrase.Add(new Chunk("длина _____   ширина _____   высота _____", normalFont));
+                        // Вместо строки с подчеркиваниями
+                        if (!string.IsNullOrEmpty(dimensions))
+                            leftCell.AddElement(new Paragraph($"Размеры груза (м): {dimensions}", normalFont));
+                        else
+                            leftCell.AddElement(new Paragraph("Размеры груза (м): не указаны", normalFont));
 
-                        leftCell.AddElement(new Paragraph(sizePhrase));
-                        leftCell.AddElement(new Paragraph(" ", normalFont)); // отступ
+                        // Жесткая упаковка
+                        string rigidText = isRigidPackaging ? "да (X)   нет ( )" : "да ( )   нет (X)";
+                        leftCell.AddElement(new Paragraph($"Жесткой упаковки: {rigidText}", normalFont));
 
-                        leftCell.AddElement(new Paragraph("Жесткой упаковки: да ( )   нет ( )", normalFont));
-                        leftCell.AddElement(new Paragraph("Страховая стоимость (руб.): _______________", normalFont));
+                        // Страховая стоимость
+                        leftCell.AddElement(new Paragraph($"Страховая стоимость (руб.): {(insuranceCost > 0 ? insuranceCost.ToString("N2") : "_______________")}", normalFont));
                         leftCell.AddElement(new Paragraph(" ", normalFont));
                         leftCell.AddElement(new Paragraph("Пожелания:", normalFont));
                         leftCell.AddElement(new Paragraph(wishes ?? "", normalFont));

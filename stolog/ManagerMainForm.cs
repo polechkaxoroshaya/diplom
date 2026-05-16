@@ -958,6 +958,26 @@ namespace EVS
                     MessageBox.Show($"Ошибка при чтении даты/времени из заявки. Будет использована текущая дата.\n\nОшибка: {ex.Message}",
                         "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+                string dimensions = "";
+                if (selectedRow.Cells["dlina_m"].Value != null &&
+                    selectedRow.Cells["shirina_m"].Value != null &&
+                    selectedRow.Cells["vysota_m"].Value != null)
+                {
+                    double l = Convert.ToDouble(selectedRow.Cells["dlina_m"].Value);
+                    double w = Convert.ToDouble(selectedRow.Cells["shirina_m"].Value);
+                    double h = Convert.ToDouble(selectedRow.Cells["vysota_m"].Value);
+                    if (l > 0 || w > 0 || h > 0)
+                        dimensions = $"{l:F2} x {w:F2} x {h:F2} м";
+                }
+
+                bool rigidPackaging = false;
+                if (selectedRow.Cells["rigid_packaging"].Value != null)
+                    rigidPackaging = Convert.ToBoolean(selectedRow.Cells["rigid_packaging"].Value);
+
+                // Страховая стоимость
+                decimal insuranceCost = 0;
+                if (selectedRow.Cells["insurance_cost"].Value != null)
+                    insuranceCost = Convert.ToDecimal(selectedRow.Cells["insurance_cost"].Value);
                 // ========== КОНЕЦ ОБЪЕДИНЕНИЯ ДАТЫ И ВРЕМЕНИ ==========
 
                 string cargoName = selectedRow.Cells["cargo"].Value?.ToString() ?? "";
@@ -974,7 +994,6 @@ namespace EVS
                 string contactPhone = selectedRow.Cells["contact_phone"].Value?.ToString() ?? "";
                 string weight = selectedRow.Cells["weight"].Value?.ToString() ?? "";
                 string volume = selectedRow.Cells["volume"].Value?.ToString() ?? "";
-                string places = selectedRow.Cells["places"].Value?.ToString() ?? "";
                 string payer = selectedRow.Cells["payer"].Value?.ToString() ?? "";
 
                 // Данные о загрузке и пропусках
@@ -1008,10 +1027,35 @@ namespace EVS
 
                 if (result == DialogResult.Yes)
                 {
-                    orderPrinter.ExportOrderToPDF(requestId, from, to, cargoName, driverName, truckInfo,
-                        companyName, orderDate, wishes, receiverOrg, receiverAddress, receiverContact,
-                        contactPerson, contactPhone, weight, volume, places, transportType, payer,
-                        rearLoading, sideLoading, topLoading, mozhd, ttk, sadovoe);
+                    orderPrinter.ExportOrderToPDF(
+                        requestId,              // long
+                        from,                   // string
+                        to,                     // string  
+                        cargoName,              // string
+                        driverName,             // string
+                        truckInfo,              // string
+                        companyName,            // string
+                        orderDate,              // DateTime
+                        wishes,                 // string
+                        receiverOrg,            // string
+                        receiverAddress,        // string
+                        receiverContact,        // string
+                        contactPerson,          // string
+                        contactPhone,           // string
+                        weight,                 // string
+                        volume,                 // string
+                        transportType,          // string
+                        payer,                  // string
+                        rearLoading,            // bool
+                        sideLoading,            // bool
+                        topLoading,             // bool
+                        mozhd,                  // bool
+                        ttk,                    // bool
+                        sadovoe,                // bool
+                        dimensions,             // string
+                        rigidPackaging,         // bool
+                        insuranceCost           // decimal
+                    );
                 }
             }
             catch (Exception ex)
@@ -1080,9 +1124,13 @@ namespace EVS
                 z.poluchatel_kontakt AS receiver_contact,
                 z.kontaktnoe_lico_otpravitel AS contact_person,
                 z.telefon_otpravitel AS contact_phone,
+                z.dlina_m,
+                z.shirina_m,
+                z.vysota_m,
+                z.list_otpravitelya AS rigid_packaging,
+                z.stoimost_grupa_dlya_strahovaniya AS insurance_cost,
                 COALESCE(z.obschiy_ves_kg::text, '') AS weight,
                 COALESCE(z.obschiy_obem_m3::text, '') AS volume,
-                COALESCE(z.kolvo_mest, '') AS places,
                 COALESCE(z.plateltschik, '') AS payer
             FROM zakazzs.zayavki z
             LEFT JOIN prog.companies c ON z.id_company = c.id_company
@@ -1121,7 +1169,6 @@ namespace EVS
                         if (dgvRequests.Columns["delivery_time"] != null)
                         {
                             dgvRequests.Columns["delivery_time"].HeaderText = "Время доставки";
-                            // Для TIME формата
                             dgvRequests.Columns["delivery_time"].DefaultCellStyle.Format = "hh\\:mm";
                         }
                         if (dgvRequests.Columns["cargo"] != null)
@@ -1138,9 +1185,8 @@ namespace EVS
                         // Делаем все дополнительные столбцы НЕвидимыми
                         string[] hiddenColumns = { "id_voditel", "id_mashina", "wishes", "receiver_org",
                     "receiver_address", "receiver_contact", "contact_person", "contact_phone",
-                    "weight", "volume", "places", "payer", "delivery_time",
-                    "zagruzka_zadnyaya", "zagruzka_bokovaya", "zagruzka_verhnyaya",
-                    "propusk_mozhd", "propusk_ttk", "propusk_sadovoe", "created_date" };
+                    "weight", "volume", "payer", "delivery_time", "dlina_m", "shirina_m", "vysota_m",
+                    "rigid_packaging", "insurance_cost", "created_date" };
                         foreach (string col in hiddenColumns)
                         {
                             if (dgvRequests.Columns[col] != null)

@@ -1,24 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\St\\StolLog\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|d:\\st\\stollog\\stolog\\clientmainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|solutionrelative:stolog\\clientmainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|d:\\st\\stollog\\stolog\\orderprintgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|solutionrelative:stolog\\orderprintgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|d:\\st\\stollog\\stolog\\routedocumentgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|solutionrelative:stolog\\routedocumentgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|d:\\st\\stollog\\stolog\\managermainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07D28868-1A22-47B7-BB9D-B5873B3C192C}|stolog\\EVS.csproj|solutionrelative:stolog\\managermainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -26,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -39,58 +22,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ManagerMainForm.cs",
-              "DocumentMoniker": "D:\\St\\StolLog\\stolog\\ManagerMainForm.cs",
-              "RelativeDocumentMoniker": "stolog\\ManagerMainForm.cs",
-              "ToolTip": "D:\\St\\StolLog\\stolog\\ManagerMainForm.cs",
-              "RelativeToolTip": "stolog\\ManagerMainForm.cs",
-              "ViewState": "AgIAAOYDAAAAAAAAAAAQwO0DAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-16T10:57:24.705Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "RouteDocumentGenerator.cs",
-              "DocumentMoniker": "D:\\St\\StolLog\\stolog\\RouteDocumentGenerator.cs",
-              "RelativeDocumentMoniker": "stolog\\RouteDocumentGenerator.cs",
-              "ToolTip": "D:\\St\\StolLog\\stolog\\RouteDocumentGenerator.cs",
-              "RelativeToolTip": "stolog\\RouteDocumentGenerator.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPMAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-16T10:40:23.022Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "OrderPrintGenerator.cs",
-              "DocumentMoniker": "D:\\St\\StolLog\\stolog\\OrderPrintGenerator.cs",
-              "RelativeDocumentMoniker": "stolog\\OrderPrintGenerator.cs",
-              "ToolTip": "D:\\St\\StolLog\\stolog\\OrderPrintGenerator.cs",
-              "RelativeToolTip": "stolog\\OrderPrintGenerator.cs",
-              "ViewState": "AgIAAHwAAAAAAAAAAAAlwJEAAABVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-16T10:39:48.122Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ClientMainForm.cs",
-              "DocumentMoniker": "D:\\St\\StolLog\\stolog\\ClientMainForm.cs",
-              "RelativeDocumentMoniker": "stolog\\ClientMainForm.cs",
-              "ToolTip": "D:\\St\\StolLog\\stolog\\ClientMainForm.cs",
-              "RelativeToolTip": "stolog\\ClientMainForm.cs",
-              "ViewState": "AgIAAIcAAAAAAAAAAAAAwIoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-15T21:22:10.49Z",
-              "EditorCaption": ""
             }
           ]
         }

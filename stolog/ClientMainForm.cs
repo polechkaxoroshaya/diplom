@@ -1800,7 +1800,7 @@ namespace EVS
                             data_podachi, data_podachi_mashiny, vremya_dostavki,
                             adress_ot, adress_do,
                             kontaktnoe_lico_otpravitel, telefon_otpravitel,
-                            naimenovanie_gruza, obschiy_ves_kg, obschiy_obem_m3, kolvo_mest,
+                            naimenovanie_gruza, obschiy_ves_kg, obschiy_obem_m3,
                             dlina_m, shirina_m, vysota_m,
                             list_otpravitelya, list_eksporta, stoimost_grupa_dlya_strahovaniya,
                             tip_transporta,
@@ -1813,7 +1813,7 @@ namespace EVS
                             @data_podachi, @data_podachi_mashiny, @vremya_dostavki,
                             @adress_ot, @adress_do,
                             @kontaktnoe_lico, @telefon,
-                            @naimenovanie_gruza, @ves, @obem, @mesta,
+                            @naimenovanie_gruza, @ves, @obem, 
                             @dlina, @shirina, @vysota,
                             @list_otpravitelya, @list_eksporta, @stoimost,
                             @tip_transporta,
@@ -1831,7 +1831,8 @@ namespace EVS
                         cmd.Parameters.AddWithValue("vremya_dostavki", dtpDeliveryTime.Value.TimeOfDay);
                         cmd.Parameters.AddWithValue("adress_ot", txtFrom.Text.Trim());
                         cmd.Parameters.AddWithValue("adress_do", txtTo.Text.Trim());
-                        cmd.Parameters.AddWithValue("kontaktnoe_lico", txtContactPerson.Text.Trim());
+                        string kontaktnoeLico = AppSession.CurrentUser?.FullName ?? "Системный пользователь";
+                        cmd.Parameters.AddWithValue("kontaktnoe_lico", kontaktnoeLico);
                         cmd.Parameters.AddWithValue("telefon", txtContactPhone.Text.Trim());
                         cmd.Parameters.AddWithValue("naimenovanie_gruza", txtCargoName.Text.Trim());
                         cmd.Parameters.AddWithValue("ves", string.IsNullOrWhiteSpace(txtWeight.Text) ? 0 : Convert.ToDecimal(txtWeight.Text));
@@ -1970,7 +1971,7 @@ namespace EVS
                 string sql = @"
             SELECT 
                 id_company, adress_ot, adress_do, data_podachi_mashiny, vremya_dostavki,
-                naimenovanie_gruza, obschiy_ves_kg, obschiy_obem_m3, kolvo_mest,
+                naimenovanie_gruza, obschiy_ves_kg, obschiy_obem_m3,
                 dlina_m, shirina_m, vysota_m,
                 list_otpravitelya, list_eksporta, stoimost_grupa_dlya_strahovaniya,
                 tip_transporta, zagruzka_zadnyaya, zagruzka_bokovaya, zagruzka_verhnyaya,
