@@ -67,7 +67,7 @@ namespace EVS
                         doc.Add(line);
                         doc.Add(new Paragraph(" "));
 
-                        // ТОЛЬКО ДАТА И ВРЕМЯ ДОСТАВКИ (из базы данных)
+                        // ========== ДАТА И ВРЕМЯ ДОСТАВКИ ИЗ ЗАЯВКИ ==========
                         PdfPTable dateTable = new PdfPTable(2);
                         dateTable.WidthPercentage = 100;
                         dateTable.SetWidths(new float[] { 25f, 25f });
@@ -94,16 +94,17 @@ namespace EVS
                         doc.Add(senderTable);
                         doc.Add(new Paragraph(" "));
 
-                        // ОПИСАНИЕ ГРУЗА
+                        // ========== ОПИСАНИЕ ГРУЗА (3 столбца: Наименование, Вес, Объём) ==========
                         Paragraph cargoTitle = new Paragraph("Описание груза", normalFont);
                         doc.Add(cargoTitle);
                         doc.Add(new Paragraph(" "));
 
-                        PdfPTable cargoTable = new PdfPTable(4);
+                        // ИСПРАВЛЕНО: теперь 3 столбца вместо 4
+                        PdfPTable cargoTable = new PdfPTable(3);
                         cargoTable.WidthPercentage = 100;
-                        cargoTable.SetWidths(new float[] { 35f, 20f, 20f, 25f });
+                        cargoTable.SetWidths(new float[] { 50f, 25f, 25f }); // Наименование шире, вес и объем по 25%
 
-                        string[] cargoHeaders = { "Наименование груза", "Вес (кг)", "Объём (м³)", "Кол-во мест" };
+                        string[] cargoHeaders = { "Наименование груза", "Вес (кг)", "Объём (м³)" };
                         foreach (string header in cargoHeaders)
                         {
                             PdfPCell cell = new PdfPCell(new Phrase(header, normalFont));
@@ -113,10 +114,10 @@ namespace EVS
                             cargoTable.AddCell(cell);
                         }
 
+                        // Добавляем данные (3 ячейки вместо 4)
                         cargoTable.AddCell(new PdfPCell(new Phrase(cargoName, normalFont)) { Border = Rectangle.BOX, Padding = 4 });
                         cargoTable.AddCell(new PdfPCell(new Phrase(weight ?? "0", normalFont)) { Border = Rectangle.BOX, Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
                         cargoTable.AddCell(new PdfPCell(new Phrase(volume ?? "0", normalFont)) { Border = Rectangle.BOX, Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
-                        cargoTable.AddCell(new PdfPCell(new Phrase(places ?? "1", normalFont)) { Border = Rectangle.BOX, Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
 
                         doc.Add(cargoTable);
                         doc.Add(new Paragraph(" "));
@@ -129,7 +130,15 @@ namespace EVS
                         PdfPCell leftCell = new PdfPCell();
                         leftCell.Border = Rectangle.NO_BORDER;
                         leftCell.Padding = 3;
-                        leftCell.AddElement(new Paragraph("Размеры груза (м): длина _____ ширина _____ высота _____", normalFont));
+
+                        // Создаем фразу с переносом строки
+                        Phrase sizePhrase = new Phrase();
+                        sizePhrase.Add(new Chunk("Размеры груза (м):\n", normalFont));  // \n - перенос строки
+                        sizePhrase.Add(new Chunk("длина _____   ширина _____   высота _____", normalFont));
+
+                        leftCell.AddElement(new Paragraph(sizePhrase));
+                        leftCell.AddElement(new Paragraph(" ", normalFont)); // отступ
+
                         leftCell.AddElement(new Paragraph("Жесткой упаковки: да ( )   нет ( )", normalFont));
                         leftCell.AddElement(new Paragraph("Страховая стоимость (руб.): _______________", normalFont));
                         leftCell.AddElement(new Paragraph(" ", normalFont));
@@ -168,7 +177,7 @@ namespace EVS
                         AddInfoRow(receiverTable, "Организация:", receiverOrg, normalFont, normalFont);
                         AddInfoRow(receiverTable, "Адрес доставки:", receiverAddress, normalFont, normalFont);
                         AddInfoRow(receiverTable, "Контактное лицо:", receiverContact, normalFont, normalFont);
-                        AddInfoRow(receiverTable, "Телефон:", "", normalFont, normalFont);
+                        AddInfoRow(receiverTable, "Телефон:", contactPhone, normalFont, normalFont);
 
                         doc.Add(receiverTable);
                         doc.Add(new Paragraph(" "));
@@ -183,9 +192,6 @@ namespace EVS
                         payerTable.SetWidths(new float[] { 22f, 78f });
 
                         AddInfoRow(payerTable, "Наименование юр. лица:", payer ?? companyName, normalFont, normalFont);
-                        AddInfoRow(payerTable, "ИНН:", "", normalFont, normalFont);
-                        AddInfoRow(payerTable, "Контактный телефон:", contactPhone, normalFont, normalFont);
-                        AddInfoRow(payerTable, "Контактное лицо:", contactPerson, normalFont, normalFont);
 
                         doc.Add(payerTable);
                         doc.Add(new Paragraph(" "));
@@ -202,7 +208,7 @@ namespace EVS
                         doc.Add(signTable);
                         doc.Add(new Paragraph(" "));
 
-                        // ДАТА
+                        // ДАТА ОФОРМЛЕНИЯ
                         Paragraph dateFooter = new Paragraph($"Дата оформления: {DateTime.Now:dd.MM.yyyy} г.", smallFont);
                         dateFooter.Alignment = Element.ALIGN_RIGHT;
                         doc.Add(dateFooter);

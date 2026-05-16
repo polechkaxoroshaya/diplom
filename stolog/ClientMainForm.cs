@@ -56,7 +56,6 @@ namespace EVS
         private TextBox txtCargoName;
         private TextBox txtWeight;
         private TextBox txtVolume;
-        private TextBox txtPlaces;
         private TextBox txtLength;
         private TextBox txtWidth;
         private TextBox txtHeight;
@@ -100,7 +99,6 @@ namespace EVS
         private Label lblCargoName;
         private Label lblWeight;
         private Label lblVolume;
-        private Label lblPlaces;
         private Label lblLength;
         private Label lblDimensions;
         private Label lblHeight;
@@ -138,7 +136,7 @@ namespace EVS
                 webViewMap.Dock = DockStyle.Fill;
                 webViewMap.Visible = true;
 
-                
+
 
                 string mapHtml = $@"
                 <!DOCTYPE html>
@@ -252,8 +250,6 @@ namespace EVS
             txtWeight = new TextBox();
             lblVolume = new Label();
             txtVolume = new TextBox();
-            lblPlaces = new Label();
-            txtPlaces = new TextBox();
             lblDimensions = new Label();
             lblLength = new Label();
             txtLength = new TextBox();
@@ -775,8 +771,6 @@ namespace EVS
             tabPageCargo.Controls.Add(txtWeight);
             tabPageCargo.Controls.Add(lblVolume);
             tabPageCargo.Controls.Add(txtVolume);
-            tabPageCargo.Controls.Add(lblPlaces);
-            tabPageCargo.Controls.Add(txtPlaces);
             tabPageCargo.Controls.Add(lblDimensions);
             tabPageCargo.Controls.Add(lblLength);
             tabPageCargo.Controls.Add(txtLength);
@@ -845,23 +839,6 @@ namespace EVS
             txtVolume.Name = "txtVolume";
             txtVolume.Size = new Size(120, 27);
             txtVolume.TabIndex = 5;
-            // 
-            // lblPlaces
-            // 
-            lblPlaces.Font = new Font("Segoe UI", 10F);
-            lblPlaces.Location = new Point(20, 105);
-            lblPlaces.Name = "lblPlaces";
-            lblPlaces.Size = new Size(150, 30);
-            lblPlaces.TabIndex = 6;
-            lblPlaces.Text = "Количество мест:";
-            // 
-            // txtPlaces
-            // 
-            txtPlaces.Font = new Font("Segoe UI", 11F);
-            txtPlaces.Location = new Point(180, 105);
-            txtPlaces.Name = "txtPlaces";
-            txtPlaces.Size = new Size(200, 27);
-            txtPlaces.TabIndex = 7;
             // 
             // lblDimensions
             // 
@@ -1859,7 +1836,6 @@ namespace EVS
                         cmd.Parameters.AddWithValue("naimenovanie_gruza", txtCargoName.Text.Trim());
                         cmd.Parameters.AddWithValue("ves", string.IsNullOrWhiteSpace(txtWeight.Text) ? 0 : Convert.ToDecimal(txtWeight.Text));
                         cmd.Parameters.AddWithValue("obem", string.IsNullOrWhiteSpace(txtVolume.Text) ? 0 : Convert.ToDecimal(txtVolume.Text));
-                        cmd.Parameters.AddWithValue("mesta", txtPlaces.Text.Trim());
                         cmd.Parameters.AddWithValue("dlina", string.IsNullOrWhiteSpace(txtLength.Text) ? 0 : Convert.ToDecimal(txtLength.Text));
                         cmd.Parameters.AddWithValue("shirina", string.IsNullOrWhiteSpace(txtWidth.Text) ? 0 : Convert.ToDecimal(txtWidth.Text));
                         cmd.Parameters.AddWithValue("vysota", string.IsNullOrWhiteSpace(txtHeight.Text) ? 0 : Convert.ToDecimal(txtHeight.Text));
@@ -2055,7 +2031,6 @@ namespace EVS
                                 txtCargoName.Text = reader.GetString(5);
                                 txtWeight.Text = reader.IsDBNull(6) ? "" : reader.GetDecimal(6).ToString();
                                 txtVolume.Text = reader.IsDBNull(7) ? "" : reader.GetDecimal(7).ToString();
-                                txtPlaces.Text = reader.IsDBNull(8) ? "" : reader.GetString(8);
 
                                 txtLength.Text = reader.IsDBNull(9) ? "" : reader.GetDecimal(9).ToString();
                                 txtWidth.Text = reader.IsDBNull(10) ? "" : reader.GetDecimal(10).ToString();
@@ -2186,7 +2161,6 @@ namespace EVS
             if (txtCargoName != null) txtCargoName.Clear();
             if (txtWeight != null) txtWeight.Clear();
             if (txtVolume != null) txtVolume.Clear();
-            if (txtPlaces != null) txtPlaces.Clear();
             if (txtLength != null) txtLength.Clear();
             if (txtWidth != null) txtWidth.Clear();
             if (txtHeight != null) txtHeight.Clear();

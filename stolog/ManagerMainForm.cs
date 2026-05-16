@@ -867,6 +867,7 @@ namespace EVS
             }
         }
         // печать заявки 
+        // печать заявки 
         private OrderPrintGenerator orderPrinter = new OrderPrintGenerator();
         private void btnPrintOrder_Click(object sender, EventArgs e)
         {
@@ -887,13 +888,77 @@ namespace EVS
                 string from = selectedRow.Cells["from_addr"].Value?.ToString() ?? "";
                 string to = selectedRow.Cells["to_addr"].Value?.ToString() ?? "";
 
-                DateTime orderDate = DateTime.Now;
+                // ========== ОБЪЕДИНЯЕМ ДАТУ И ВРЕМЯ ИЗ ЗАЯВКИ ==========
+                DateTime orderDate = DateTime.Now; // значение по умолчанию
+
                 try
                 {
-                    if (selectedRow.Cells["order_date"].Value != null)
-                        orderDate = Convert.ToDateTime(selectedRow.Cells["order_date"].Value);
+                    // Получаем дату из data_podachi_mashiny (тип DATE в PostgreSQL)
+                    DateTime dateOnly = DateTime.Now.Date;
+                    if (selectedRow.Cells["order_date"].Value != null &&
+                        selectedRow.Cells["order_date"].Value != DBNull.Value)
+                    {
+                        object dateValue = selectedRow.Cells["order_date"].Value;
+
+                        // Обработка разных типов даты
+                        if (dateValue is DateTime dt)
+                        {
+                            dateOnly = dt.Date;
+                        }
+                        else if (dateValue is DateOnly dateOnlyValue)
+                        {
+                            dateOnly = dateOnlyValue.ToDateTime(TimeOnly.MinValue);
+                        }
+                        else
+                        {
+                            dateOnly = Convert.ToDateTime(dateValue).Date;
+                        }
+                    }
+
+                    // Получаем время из vremya_dostavki (тип TIME в PostgreSQL)
+                    TimeSpan timeOnly = TimeSpan.Zero;
+                    if (selectedRow.Cells["delivery_time"].Value != null &&
+                        selectedRow.Cells["delivery_time"].Value != DBNull.Value)
+                    {
+                        object timeValue = selectedRow.Cells["delivery_time"].Value;
+
+                        // Обработка разных типов времени
+                        if (timeValue is TimeSpan ts)
+                        {
+                            timeOnly = ts;
+                        }
+                        else if (timeValue is TimeOnly timeOnlyValue)
+                        {
+                            timeOnly = timeOnlyValue.ToTimeSpan();
+                        }
+                        else
+                        {
+                            timeOnly = TimeSpan.Parse(timeValue.ToString());
+                        }
+                    }
+
+                    // Объединяем дату и время
+                    orderDate = dateOnly.Add(timeOnly);
+
+                    // Для отладки - показываем пользователю какая дата будет в PDF
+                    MessageBox.Show($"Дата и время из заявки:\n\n" +
+                        $"📅 Дата: {dateOnly:dd.MM.yyyy}\n" +
+                        $"⏰ Время: {timeOnly:hh\\:mm}\n\n" +
+                        $"✅ В PDF будет: {orderDate:dd.MM.yyyy HH:mm}",
+                        "Проверка даты и времени",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch { orderDate = DateTime.Now; }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка преобразования даты/времени: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Тип order_date: {selectedRow.Cells["order_date"].Value?.GetType()}");
+                    System.Diagnostics.Debug.WriteLine($"Тип delivery_time: {selectedRow.Cells["delivery_time"].Value?.GetType()}");
+
+                    orderDate = DateTime.Now;
+                    MessageBox.Show($"Ошибка при чтении даты/времени из заявки. Будет использована текущая дата.\n\nОшибка: {ex.Message}",
+                        "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                // ========== КОНЕЦ ОБЪЕДИНЕНИЯ ДАТЫ И ВРЕМЕНИ ==========
 
                 string cargoName = selectedRow.Cells["cargo"].Value?.ToString() ?? "";
                 string transportType = selectedRow.Cells["transport"].Value?.ToString() ?? "";
@@ -912,11 +977,10 @@ namespace EVS
                 string places = selectedRow.Cells["places"].Value?.ToString() ?? "";
                 string payer = selectedRow.Cells["payer"].Value?.ToString() ?? "";
 
-                // Данные о загрузке и пропусках (если есть в таблице)
+                // Данные о загрузке и пропусках
                 bool rearLoading = false, sideLoading = false, topLoading = false;
                 bool mozhd = false, ttk = false, sadovoe = false;
 
-                // Если в DataGridView есть столбцы с этими данными
                 if (dgvRequests.Columns["zagruzka_zadnyaya"] != null)
                     rearLoading = Convert.ToBoolean(selectedRow.Cells["zagruzka_zadnyaya"].Value ?? false);
                 if (dgvRequests.Columns["zagruzka_bokovaya"] != null)
@@ -930,8 +994,14 @@ namespace EVS
                 if (dgvRequests.Columns["propusk_sadovoe"] != null)
                     sadovoe = Convert.ToBoolean(selectedRow.Cells["propusk_sadovoe"].Value ?? false);
 
+                // Подтверждение печати
                 DialogResult result = MessageBox.Show(
-                    $"Печать заявки №{requestId}\n\nКомпания: {companyName}\nГруз: {cargoName}\nДата подачи: {orderDate:dd.MM.yyyy}\n\nПродолжить?",
+                    $"Печать заявки №{requestId}\n\n" +
+                    $"Компания: {companyName}\n" +
+                    $"Груз: {cargoName}\n" +
+                    $"Дата подачи машины: {orderDate:dd.MM.yyyy}\n" +
+                    $"Время доставки: {orderDate:HH:mm}\n\n" +
+                    $"Продолжить?",
                     "Подтверждение печати",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -948,31 +1018,6 @@ namespace EVS
             {
                 MessageBox.Show($"Ошибка при печати заявки: {ex.Message}",
                     "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-        // печать заявки чтоб работала
-        private DateTime SafeGetDateTime(object value)
-        {
-            if (value == null)
-                return DateTime.Now;
-
-            try
-            {
-                // Пробуем Convert.ToDateTime
-                return Convert.ToDateTime(value);
-            }
-            catch
-            {
-                try
-                {
-                    // Пробуем через ToString()
-                    return DateTime.Parse(value.ToString());
-                }
-                catch
-                {
-                    // Если ничего не работает, возвращаем сегодня
-                    return DateTime.Now;
-                }
             }
         }
 
@@ -1020,6 +1065,8 @@ namespace EVS
                 z.adress_ot AS from_addr, 
                 z.adress_do AS to_addr, 
                 z.data_podachi_mashiny AS order_date,
+                z.vremya_dostavki AS delivery_time,
+                z.created_at AS created_date,
                 z.naimenovanie_gruza AS cargo,
                 z.tip_transporta AS transport,
                 s.status_name AS status,
@@ -1071,6 +1118,12 @@ namespace EVS
                             dgvRequests.Columns["order_date"].HeaderText = "Дата подачи";
                             dgvRequests.Columns["order_date"].DefaultCellStyle.Format = "dd.MM.yyyy";
                         }
+                        if (dgvRequests.Columns["delivery_time"] != null)
+                        {
+                            dgvRequests.Columns["delivery_time"].HeaderText = "Время доставки";
+                            // Для TIME формата
+                            dgvRequests.Columns["delivery_time"].DefaultCellStyle.Format = "hh\\:mm";
+                        }
                         if (dgvRequests.Columns["cargo"] != null)
                             dgvRequests.Columns["cargo"].HeaderText = "Груз";
                         if (dgvRequests.Columns["transport"] != null)
@@ -1085,7 +1138,9 @@ namespace EVS
                         // Делаем все дополнительные столбцы НЕвидимыми
                         string[] hiddenColumns = { "id_voditel", "id_mashina", "wishes", "receiver_org",
                     "receiver_address", "receiver_contact", "contact_person", "contact_phone",
-                    "weight", "volume", "places", "payer" };
+                    "weight", "volume", "places", "payer", "delivery_time",
+                    "zagruzka_zadnyaya", "zagruzka_bokovaya", "zagruzka_verhnyaya",
+                    "propusk_mozhd", "propusk_ttk", "propusk_sadovoe", "created_date" };
                         foreach (string col in hiddenColumns)
                         {
                             if (dgvRequests.Columns[col] != null)
