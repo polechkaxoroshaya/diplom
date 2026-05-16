@@ -201,7 +201,6 @@ CREATE TABLE zakazzs.zayavki (
     naimenovanie_gruza VARCHAR(500),
     obschiy_ves_kg NUMERIC(10, 2),
     obschiy_obem_m3 NUMERIC(10, 2),
-    kolvo_mest VARCHAR(100),
     dilna_m NUMERIC(8, 2),
     shirina_m NUMERIC(8, 2),
     vysota_m NUMERIC(8, 2),
