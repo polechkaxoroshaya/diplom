@@ -101,7 +101,7 @@ CREATE TABLE prog.polzovateli (
 );
 
 -- Таблица users_polz
-CREATE TABLE prog.users_polz (
+CREATE TABLE security.users_polz (
     id_user_p SERIAL PRIMARY KEY,
     login_p VARCHAR(50) NOT NULL,
     password_hash_user VARCHAR(64) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE prog.users_polz (
     id_polzovatelya INTEGER NOT NULL
 );
 
-ALTER TABLE prog.users_polz
+ALTER TABLE security.users_polz
 ADD CONSTRAINT fk_userspolz_polzovateli
 FOREIGN KEY (id_user_p) REFERENCES prog.polzovateli(id_polzovatelya);
 
