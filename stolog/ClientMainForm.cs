@@ -125,6 +125,7 @@ namespace EVS
             LoadCompanies();
             LoadActiveRequests();
             LoadArchiveRequests();
+            LoadCurrentUserInfo();
             this.Shown += async (s, e) => await InitializeMap();
         }
 
@@ -1369,6 +1370,7 @@ namespace EVS
 
         private void LoadCompanies()
         {
+
             try
             {
                 int userId = GetClientId();
@@ -1528,7 +1530,49 @@ namespace EVS
             }
             LoadCompanies();
         }
+        private void LoadCurrentUserInfo()
+        {
+            try
+            {
+                if (AppSession.CurrentUser != null)
+                {
+                    // Берем ФИО из сессии
+                    string fullName = AppSession.CurrentUser.FullName;
+                    if (!string.IsNullOrEmpty(fullName))
+                    {
+                        txtContactPerson.Text = fullName;
+                    }
+                    else
+                    {
+                        // Если в сессии нет - берем из базы
+                        int userId = GetClientId();
+                        string sql = "SELECT s_familiya || ' ' || s_imya FROM sortydnikis.sotrydniki WHERE id_sotrydnika = @userId";
+                        using (var conn = new NpgsqlConnection(connectionString))
+                        {
+                            conn.Open();
+                            using (var cmd = new NpgsqlCommand(sql, conn))
+                            {
+                                cmd.Parameters.AddWithValue("userId", userId);
+                                txtContactPerson.Text = cmd.ExecuteScalar()?.ToString() ?? "Пользователь";
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    txtContactPerson.Text = "Пользователь";
+                }
 
+                // Делаем поле только для чтения
+                txtContactPerson.ReadOnly = true;
+                txtContactPerson.BackColor = Color.FromArgb(240, 248, 255);
+            }
+            catch (Exception ex)
+            {
+                txtContactPerson.Text = "Пользователь";
+                System.Diagnostics.Debug.WriteLine("Ошибка: " + ex.Message);
+            }
+        }
         // ==================== ЗАГРУЗКА АКТИВНЫХ ЗАЯВОК ====================
 
         private void LoadActiveRequests()
@@ -2154,7 +2198,7 @@ namespace EVS
         private void ClearOrderForm()
         {
             if (!isFormInitialized) return;
-
+            if (txtContactPerson != null) txtContactPerson.Clear();
             if (txtFrom != null) txtFrom.Clear();
             if (txtTo != null) txtTo.Clear();
             if (txtContactPhone != null) txtContactPhone.Clear();
