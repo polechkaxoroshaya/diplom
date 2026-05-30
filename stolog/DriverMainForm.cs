@@ -577,13 +577,16 @@ namespace EVS
 
         private void AdjustHeaderLayout()
         {
-            lblDateTime.Location = new Point(this.ClientSize.Width - lblDateTime.Width - 30, 35);
+            // Устанавливаем положение даты/времени
+            lblDateTime.Location = new Point(this.ClientSize.Width - lblDateTime.Width - 30, 40);
+
+            // Фиксируем кнопку выхода в правом нижнем углу боковой панели
             if (btnLogout != null)
             {
-                btnLogout.Location = new Point(15, this.ClientSize.Height - 80);
+                // Кнопка выхода всегда внизу бокового меню
+                btnLogout.Location = new Point(10, sidePanel.Height - 60);
             }
         }
-
         private void btnLogout_Click(object sender, EventArgs e)
         {
             AppSession.Logout();

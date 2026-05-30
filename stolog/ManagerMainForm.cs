@@ -51,6 +51,8 @@ namespace EVS
         // 
         private Button btnPrintOrder;
         private Button btnCloseAssignPanel;
+        //
+        private Button btnArchiveManager;
         public ManagerMainForm()
         {
             InitializeComponent();
@@ -72,6 +74,7 @@ namespace EVS
             lblDateTime = new Label();
             timerDateTime = new System.Windows.Forms.Timer(components);
             sidePanel = new Panel();
+            btnArchiveManager = new Button();
             btnPrintOrder = new Button();
             btnRequests = new Button();
             btnAssign = new Button();
@@ -171,6 +174,7 @@ namespace EVS
             // sidePanel
             // 
             sidePanel.BackColor = Color.FromArgb(248, 249, 252);
+            sidePanel.Controls.Add(btnArchiveManager);
             sidePanel.Controls.Add(btnPrintOrder);
             sidePanel.Controls.Add(btnRequests);
             sidePanel.Controls.Add(btnAssign);
@@ -183,6 +187,21 @@ namespace EVS
             sidePanel.Name = "sidePanel";
             sidePanel.Size = new Size(259, 951);
             sidePanel.TabIndex = 1;
+            // 
+            // btnArchiveManager
+            // 
+            btnArchiveManager.BackColor = Color.White;
+            btnArchiveManager.Cursor = Cursors.Hand;
+            btnArchiveManager.FlatStyle = FlatStyle.Flat;
+            btnArchiveManager.Font = new Font("Segoe UI", 11F);
+            btnArchiveManager.ForeColor = Color.FromArgb(0, 80, 131);
+            btnArchiveManager.Location = new Point(10, 350);
+            btnArchiveManager.Name = "btnArchiveManager";
+            btnArchiveManager.Size = new Size(210, 45);
+            btnArchiveManager.TabIndex = 0;
+            btnArchiveManager.Text = "📦 Управление архивом";
+            btnArchiveManager.UseVisualStyleBackColor = false;
+            btnArchiveManager.Click += btnArchiveManager_Click;
             // 
             // btnPrintOrder
             // 
@@ -281,7 +300,7 @@ namespace EVS
             btnLogout.FlatStyle = FlatStyle.Flat;
             btnLogout.Font = new Font("Segoe UI", 11F);
             btnLogout.ForeColor = Color.FromArgb(200, 50, 50);
-            btnLogout.Location = new Point(10, 391);
+            btnLogout.Location = new Point(10, 420);
             btnLogout.Name = "btnLogout";
             btnLogout.Size = new Size(210, 45);
             btnLogout.TabIndex = 5;
@@ -511,7 +530,7 @@ namespace EVS
             dgvDrivers.Name = "dgvDrivers";
             dgvDrivers.ReadOnly = true;
             dgvDrivers.RowHeadersVisible = false;
-            dgvDrivers.Size = new Size(1223, 511);
+            dgvDrivers.Size = new Size(1223, 911);
             dgvDrivers.TabIndex = 2;
             dgvDrivers.Visible = false;
             // 
@@ -596,7 +615,14 @@ namespace EVS
                     companyName, orderDate, wishes, receiverOrg, receiverAddress, receiverContact);
             }
         }
-
+        private void btnArchiveManager_Click(object sender, EventArgs e)
+        {
+            using (var form = new ArchiveManagerForm())
+            {
+                form.ShowDialog();
+            }
+            LoadRequests(); // Обновляем список активных заявок
+        }
         private void timerDateTime_Tick(object sender, EventArgs e)
         {
             lblDateTime.Text = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss");
@@ -859,14 +885,17 @@ namespace EVS
 
         private void AdjustHeaderLayout()
         {
+            // Устанавливаем положение даты/времени
             lblDateTime.Location = new Point(this.ClientSize.Width - lblDateTime.Width - 30, 40);
+
+            // Фиксируем кнопку выхода в правом нижнем углу боковой панели
             if (btnLogout != null)
             {
-                // Измените Y координату с this.ClientSize.Height - 80 на 400
-                btnLogout.Location = new Point(10, 350);
+                // Кнопка выхода всегда внизу бокового меню
+                btnLogout.Location = new Point(10, sidePanel.Height - 60);
             }
         }
-        // печать заявки 
+ 
         // печать заявки 
         private OrderPrintGenerator orderPrinter = new OrderPrintGenerator();
         private void btnPrintOrder_Click(object sender, EventArgs e)

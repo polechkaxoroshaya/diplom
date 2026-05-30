@@ -92,3 +92,4 @@ D:\St\StolLog\stolog\obj\Debug\net10.0-windows\EVS.pdb
 D:\St\StolLog\stolog\obj\Debug\net10.0-windows\EVS.genruntimeconfig.cache
 D:\St\StolLog\stolog\obj\Debug\net10.0-windows\ref\EVS.dll
 D:\St\StolLog\stolog\obj\Debug\net10.0-windows\EVS.sourcelink.json
+D:\St\StolLog\stolog\obj\Debug\net10.0-windows\EVS.ArchiveManagerForm.resources

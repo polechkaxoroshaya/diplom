@@ -137,7 +137,7 @@ namespace EVS
                 webViewMap.Dock = DockStyle.Fill;
                 webViewMap.Visible = true;
 
-
+                string apiKey = "8da26345-10b9-422d-9859-8fc382e09c35";
 
                 string mapHtml = $@"
                 <!DOCTYPE html>
@@ -1359,10 +1359,14 @@ namespace EVS
 
         private void AdjustHeaderLayout()
         {
+            // Устанавливаем положение даты/времени
             lblDateTime.Location = new Point(this.ClientSize.Width - lblDateTime.Width - 30, 40);
+
+            // Фиксируем кнопку выхода в правом нижнем углу боковой панели
             if (btnLogout != null)
             {
-                btnLogout.Location = new Point(10, this.ClientSize.Height - 80);
+                // Кнопка выхода всегда внизу бокового меню
+                btnLogout.Location = new Point(10, sidePanel.Height - 60);
             }
         }
 
