@@ -222,7 +222,6 @@ CREATE TABLE zakazzs.zayavki (
     prochee TEXT,
     id_zakazchika INTEGER NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    id_zakaza INTEGER,
     id_company INTEGER,
     id_status INTEGER DEFAULT 1,
     is_archived BOOLEAN DEFAULT FALSE,
@@ -244,10 +243,6 @@ ADD CONSTRAINT fk_zayavki_zayavkistatus
 FOREIGN KEY (id_status) REFERENCES zakazzs.zayavki_status(id_status);
 
 ALTER TABLE zakazzs.zayavki
-ADD CONSTRAINT fk_zayavki_polzovateli
-FOREIGN KEY (id_zakazchika) REFERENCES prog.polzovateli(id_polzovatelya);
-
-ALTER TABLE zakazzs.zayavki
 ADD CONSTRAINT fk_zayavki_mashinki
 FOREIGN KEY (id_mashina) REFERENCES mashini.mashinki(id_mashini);
 
@@ -264,9 +259,11 @@ CREATE TABLE zakazzs.istoriya_statusov (
     izmenil_name VARCHAR(100) DEFAULT 'Система'
 );
 
-ALTER TABLE zakazzs.istoriya_statusov
-ADD CONSTRAINT fk_istoriyastatusov_zayavki
-FOREIGN KEY (id_zayavki) REFERENCES zakazzs.zayavki(id_zayavki);
+ALTER TABLE zakazzs.istoriya_statusov 
+ADD CONSTRAINT istoriya_statusov_id_zayavki_fkey 
+FOREIGN KEY (id_zayavki) 
+REFERENCES zakazzs.zayavki(id_zayavki) 
+ON DELETE CASCADE;
 
 -- ЗАПОЛНЕНИЕ ДАННЫМИ
 -- Таблица gryzopodemnostimashin
